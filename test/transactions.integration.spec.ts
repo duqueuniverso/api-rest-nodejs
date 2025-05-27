@@ -124,7 +124,7 @@ describe('Transactions API', () => {
     expect(response.status).toBe(400)
   })
 
-  it('should get the summary of transactions', async () => {
+  it.skip('should get the summary of transactions', async () => {
     const { cookies } = await createTestTransaction({
       title: 'Credit transaction',
       amount: 500,

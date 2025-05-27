@@ -1,15 +1,38 @@
-# api-rest-nodejs
+# Transactions API
 
-npm run knex -- migrate:latest   
+## Estilo de Código
 
+### TypeScript
+- Interfaces prefixadas com `I` (opcional)
+- Tipos em PascalCase
+- Use `type` para uniões/intersecções
+- Use `interface` para formas de objetos
 
-TODO:
+### Exemplo de Controller
+```typescript
+export class TransactionsController {
+  constructor(
+    private readonly service: TransactionsService
+  ) {}
 
-[] Hardening de Segurança Básica 🔒
-[] Refatoração para Repository Pattern 🧱
-[] Implementação de Health Checks 🩺
-[] Melhoria de Tratamento de Erros 🚨
-[] Otimização de Performance do Summary ⚡
-[] Implementação de Clean Architecture 🏛️
-[] Documentação Técnica 📚
-[] Pipeline de CI/CD 🔄
+  async create(request: FastifyRequest, reply: FastifyReply) {
+    // ... implementação
+  }
+}
+```
+
+### Convenções
+1. Banco de dados:
+   - Tabelas no plural (`transactions`)
+   - Snake_case para colunas
+
+2. Cache:
+   - Chaves no formato `type:id` (ex: `summary:session-123`)
+   - TTL padrão de 60s
+
+## Rotas Principais
+| Método | Rota            | Descrição               |
+|--------|-----------------|-------------------------|
+| POST   | /transactions   | Cria nova transação     |
+| GET    | /transactions   | Lista transações        |
+| GET    | /transactions/:id | Obtém transação específica |

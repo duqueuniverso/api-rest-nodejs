@@ -3,6 +3,7 @@ import {
   Transaction,
   TransactionRepository,
 } from '../interfaces/transaction.repository'
+import { redis } from '../lib/redis'
 
 export class KnexTransactionRepository implements TransactionRepository {
   // eslint-disable-next-line no-useless-constructor
@@ -23,12 +24,33 @@ export class KnexTransactionRepository implements TransactionRepository {
   }
 
   async getSummary(sessionId: string): Promise<number> {
+    const cacheKey = `summary:${sessionId}`
+
+    // Try to get cache
+
+    const cacheSummary = await redis.get(cacheKey)
+    if (cacheSummary) return Number(cacheSummary)
+
+    // Metrics of Cache
+
+    // If no cache, retrieve on transacion table
+
     const result = await this.knex('transactions')
-      .sum('amount', { as: 'amount' })
+      .sum('amount', {
+        as: 'amount',
+      })
       .where('session_id', sessionId)
       .first()
 
-    return Number(result?.amount || 0)
+    const summary = Number(result?.amount || 0)
+
+    // Set cache with TTL of 60s
+    await redis.set(cacheKey, summary.toString(), { EX: 60 })
+
+    // Close Connection
+    await redis.close()
+
+    return summary
   }
 
   async findByID(id: string, sessionId: string): Promise<Transaction> {

@@ -7,6 +7,7 @@ import { transactionsRoutes } from './routes/transactions.routes'
 import { KnexTransactionRepository } from './infrastructure/knex-transaction.repository'
 
 import { knex } from './database'
+import { healthCheckRoutes } from './routes/health_check.routes'
 
 export const app = fastify()
 
@@ -36,3 +37,5 @@ app.decorate('repository', new KnexTransactionRepository(knex))
 app.register(transactionsRoutes, {
   prefix: 'transactions',
 })
+
+app.register(healthCheckRoutes)

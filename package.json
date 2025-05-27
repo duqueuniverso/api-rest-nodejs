@@ -30,8 +30,6 @@
   "devDependencies": {
     "@arkweid/lefthook": "^0.7.7",
     "@biomejs/biome": "^1.9.4",
-    "@fastify/swagger": "^9.5.1",
-    "@fastify/swagger-ui": "^5.2.2",
     "@rocketseat/eslint-config": "^2.2.2",
     "@types/node": "^22.15.19",
     "@types/supertest": "^6.0.3",
@@ -45,6 +43,8 @@
     "vitest": "^3.1.4"
   },
   "dependencies": {
+    "@fastify/swagger": "^9.5.1",
+    "@fastify/swagger-ui": "^5.2.2",
     "@fastify/cookie": "^11.0.2",
     "@fastify/helmet": "^13.0.1",
     "@fastify/rate-limit": "^10.3.0",

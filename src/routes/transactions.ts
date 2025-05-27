@@ -3,8 +3,25 @@ import { knex } from '../database'
 import { randomUUID } from 'crypto'
 import { z } from 'zod'
 import { hasValidSessionCookie } from '../middleware/check-session-id-exists'
+import { env } from '../env'
 
 export async function transactionsRoutes(app: FastifyInstance) {
+  // Adicione antes das definições de rota
+  app.addHook('preHandler', (request, reply, done) => {
+    const allowedMethods = ['POST', 'PUT']
+
+    if (allowedMethods.includes(request.method)) {
+      const contentType = request.headers['content-type']
+      if (!contentType || !contentType.includes('application/json')) {
+        return reply.status(415).send({
+          error: 'Unsupported Media Type',
+          message: 'Content-Type must be application/json',
+        })
+      }
+    }
+    done()
+  })
+
   app.get('/', { preHandler: [hasValidSessionCookie] }, async (request) => {
     const { sessionId } = request.cookies
 
@@ -57,6 +74,9 @@ export async function transactionsRoutes(app: FastifyInstance) {
     if (!sessionId) {
       sessionId = randomUUID()
       reply.cookie('sessionId', sessionId, {
+        httpOnly: true,
+        secure: env.NODE_ENV === 'production',
+        sameSite: 'strict',
         path: '/',
         maxAge: 60 * 60 * 24 * 7, // 7 days
       })

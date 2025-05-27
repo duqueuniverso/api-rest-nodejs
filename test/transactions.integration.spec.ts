@@ -64,7 +64,7 @@ describe('Transactions API', () => {
     })
 
     // Changed assertion since Zod validation returns 400
-    expect(response.status).toBe(500)
+    expect(response.status).toBe(400)
   })
 
   it('should list all transactions for a session', async () => {
@@ -121,7 +121,7 @@ describe('Transactions API', () => {
       .get('/transactions/invalid-id')
       .set('Cookie', cookies)
 
-    expect(response.status).toBe(500)
+    expect(response.status).toBe(400)
   })
 
   it('should get the summary of transactions', async () => {

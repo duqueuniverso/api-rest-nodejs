@@ -8,6 +8,8 @@ import { KnexTransactionRepository } from './infrastructure/knex-transaction.rep
 
 import { knex } from './database'
 import { healthCheckRoutes } from './routes/health_check.routes'
+import { ZodError } from 'zod'
+import { AppError } from './errors/app-error'
 
 export const app = fastify()
 
@@ -39,3 +41,27 @@ app.register(transactionsRoutes, {
 })
 
 app.register(healthCheckRoutes)
+
+app.setErrorHandler((error, _, reply) => {
+  if (error instanceof ZodError) {
+    return reply.status(400).send({
+      type: 'validation_error',
+      issues: error.errors,
+    })
+  }
+
+  if (error instanceof AppError) {
+    return reply.status(error.statusCode).send({
+      type: 'application_error',
+      message: error.message,
+    })
+  }
+
+  // Log para o Datadog/Sentry
+  // logger.error('Unhandled error', error)
+
+  return reply.status(500).send({
+    type: 'internal_error',
+    message: 'Internal server error',
+  })
+})

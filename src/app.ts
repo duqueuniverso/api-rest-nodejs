@@ -1,116 +1,116 @@
-import fastify from 'fastify'
-import cookie from '@fastify/cookie'
-import helmet from '@fastify/helmet'
-import rateLimit from '@fastify/rate-limit'
+import fastify from "fastify";
+import cookie from "@fastify/cookie";
+import helmet from "@fastify/helmet";
+import rateLimit from "@fastify/rate-limit";
 
-import { transactionsRoutes } from './routes/transactions.routes'
-import { KnexTransactionRepository } from './infrastructure/knex-transaction.repository'
-import fastifySwagger from '@fastify/swagger'
-import fastifySwaggerUi from '@fastify/swagger-ui'
+import { transactionsRoutes } from "./routes/transactions.routes";
+import { KnexTransactionRepository } from "./infrastructure/knex-transaction.repository";
+import fastifySwagger from "@fastify/swagger";
+import fastifySwaggerUi from "@fastify/swagger-ui";
 
-import { knex } from './database'
-import { healthCheckRoutes } from './routes/health_check.routes'
-import { ZodError } from 'zod'
-import { AppError } from './errors/app-error'
+import { knex } from "./database";
+import { healthCheckRoutes } from "./routes/health_check.routes";
+import { ZodError } from "zod";
+import { AppError } from "./errors/app-error";
 
-export const app = fastify()
+export const app = fastify();
 
 app.register(cookie, {
-  secret: 'your-secret', // se for usar cookies assinados
-})
+  secret: "your-secret", // se for usar cookies assinados
+});
 
 app.register(helmet, {
   contentSecurityPolicy: false,
-  crossOriginResourcePolicy: { policy: 'same-site' },
-  frameguard: { action: 'deny' },
-})
+  crossOriginResourcePolicy: { policy: "same-site" },
+  frameguard: { action: "deny" },
+});
 
 app.register(fastifySwagger, {
   openapi: {
     info: {
-      title: 'Transactions API',
-      description: 'API para gerenciamento de transações financeiras',
-      version: '1.0.0',
+      title: "Transactions API",
+      description: "API para gerenciamento de transações financeiras",
+      version: "1.0.0",
     },
     components: {
       securitySchemes: {
         sessionCookie: {
-          type: 'apiKey',
-          name: 'sessionId',
-          in: 'cookie',
+          type: "apiKey",
+          name: "sessionId",
+          in: "cookie",
         },
       },
     },
   },
-})
+});
 
 app.register(fastifySwaggerUi, {
-  routePrefix: '/docs',
+  routePrefix: "/docs",
   uiConfig: {
-    docExpansion: 'full',
+    docExpansion: "full",
     deepLinking: false,
   },
-})
+});
 
 app.register(rateLimit, {
   global: true,
-  max: process.env.NODE_ENV === 'test' ? 1000 : 10,
-  timeWindow: '1 minute',
+  max: process.env.NODE_ENV === "test" ? 1000 : 10,
+  timeWindow: "1 minute",
   addHeaders: {
-    'x-ratelimit-limit': true,
-    'x-ratelimit-remaining': true,
-    'x-ratelimit-reset': true,
+    "x-ratelimit-limit": true,
+    "x-ratelimit-remaining": true,
+    "x-ratelimit-reset": true,
   },
-})
+});
 
-app.decorate('repository', new KnexTransactionRepository(knex))
+app.decorate("repository", new KnexTransactionRepository(knex));
 
 app.register(transactionsRoutes, {
-  prefix: 'transactions',
+  prefix: "transactions",
   schema: {
-    description: 'Lista todas as transações do usuário',
-    tags: ['transactions'],
+    description: "Lista todas as transações do usuário",
+    tags: ["transactions"],
     security: [{ sessionCookie: [] }],
     response: {
       200: {
-        type: 'array',
+        type: "array",
         items: {
-          type: 'object',
+          type: "object",
           properties: {
-            id: { type: 'string', format: 'uuid' },
-            title: { type: 'string' },
-            amount: { type: 'number' },
-            type: { type: 'string', enum: ['credit', 'debit'] },
+            id: { type: "string", format: "uuid" },
+            title: { type: "string" },
+            amount: { type: "number" },
+            type: { type: "string", enum: ["credit", "debit"] },
           },
         },
       },
     },
   },
-})
+});
 
-app.register(healthCheckRoutes)
+app.register(healthCheckRoutes);
 
 app.setErrorHandler((error, _, reply) => {
   if (error instanceof ZodError) {
     return reply.status(400).send({
-      type: 'validation_error',
+      type: "validation_error",
       issues: error.errors,
-    })
+    });
   }
 
   if (error instanceof AppError) {
     return reply.status(error.statusCode).send({
-      type: 'application_error',
+      type: "application_error",
       message: error.message,
-    })
+    });
   }
 
   // Log para o Datadog/Sentry
   // logger.error('Unhandled error', error)
 
   return reply.status(500).send({
-    type: 'internal_error',
-    message: 'Internal server error',
+    type: "internal_error",
+    message: "Internal server error",
     content: error.message,
-  })
-})
+  });
+});

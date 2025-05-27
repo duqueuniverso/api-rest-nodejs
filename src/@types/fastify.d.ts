@@ -1,7 +1,7 @@
-import { TransactionRepository } from '../interfaces/transaction.repository'
+import type { TransactionRepository } from "../interfaces/transaction.repository";
 
-declare module 'fastify' {
+declare module "fastify" {
   interface FastifyInstance {
-    repository: TransactionRepository
+    repository: TransactionRepository;
   }
 }

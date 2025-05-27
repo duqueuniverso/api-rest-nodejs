@@ -59,6 +59,11 @@ jobs:
       uses: codecov/codecov-action@v3
       if: success()
 
+    - name: Run Biome
+      run: |
+        npx biome ci
+        npx biome check --apply-unsafe .  
+
   security:
     name: Security Checks
     runs-on: ubuntu-latest

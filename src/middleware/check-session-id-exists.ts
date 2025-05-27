@@ -1,14 +1,14 @@
-import { FastifyReply, FastifyRequest } from 'fastify'
+import type { FastifyReply, FastifyRequest } from "fastify";
 
 export async function hasValidSessionCookie(
   request: FastifyRequest,
   reply: FastifyReply,
 ) {
-  const sessionId = request.cookies?.sessionId
+  const sessionId = request.cookies?.sessionId;
 
   if (!sessionId) {
     return reply.status(401).send({
-      error: 'Unauthorized.',
-    })
+      error: "Unauthorized.",
+    });
   }
 }

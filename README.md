@@ -1,5 +1,7 @@
 # api-rest-nodejs
 
+npm run knex -- migrate:latest   
+
 
 TODO:
 

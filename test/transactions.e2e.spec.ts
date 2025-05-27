@@ -1,8 +1,7 @@
-import { it, beforeAll, afterAll, describe, expect } from 'vitest'
+import { afterEach, beforeAll, afterAll, describe, expect, it } from 'vitest'
 import request from 'supertest'
 import { app } from '../src/app'
-import { beforeEach } from 'node:test'
-import { execSync } from 'node:child_process'
+import { execSync } from 'child_process'
 
 describe('Transactions routes', () => {
   beforeAll(async () => {
@@ -13,93 +12,84 @@ describe('Transactions routes', () => {
     await app.close()
   })
 
-  beforeEach(() => {
+  afterEach(() => {
     execSync('npm run knex migrate:rollback --all')
     execSync('npm run knex migrate:latest')
   })
 
   it('should be able to create a new transaction', async () => {
-    await request(app.server)
-      .post('/transactions')
-      .send({
-        title: 'new transaction',
-        amount: 5000,
-        type: 'credit',
-      })
-      .expect(201)
+    const response = await request(app.server).post('/transactions').send({
+      title: 'New transaction',
+      amount: 5000,
+      type: 'credit',
+    })
+
+    expect(response.statusCode).toEqual(201)
+    expect(response.get('Set-Cookie')).toBeDefined()
   })
 
-  it('should be abble to list summary', async () => {
+  it('should be able to list all transactions', async () => {
     const createTransactionResponse = await request(app.server)
       .post('/transactions')
       .send({
-        title: 'new transaction',
+        title: 'New transaction',
         amount: 5000,
         type: 'credit',
       })
-      .expect(201)
 
     const cookies = createTransactionResponse.get('Set-Cookie')
 
     const listTransactionsResponse = await request(app.server)
       .get('/transactions')
       .set('Cookie', cookies)
-      .expect(200)
 
+    expect(listTransactionsResponse.statusCode).toEqual(200)
     expect(listTransactionsResponse.body).toEqual([
       expect.objectContaining({
-        title: 'new transaction',
+        title: 'New transaction',
         amount: 5000,
       }),
     ])
   })
 
-  it('should be abble to get a specific transaction', async () => {
+  it('should be able to get a specific transaction', async () => {
     const createTransactionResponse = await request(app.server)
       .post('/transactions')
       .send({
-        title: 'credit transaction',
+        title: 'New transaction',
         amount: 5000,
         type: 'credit',
       })
-      .expect(201)
 
     const cookies = createTransactionResponse.get('Set-Cookie')
 
-    await request(app.server)
-      .post('/transactions')
-      .set('Cookie', cookies)
-      .send({
-        title: 'debit transaction',
-        amount: 2000,
-        type: 'debit',
-      })
-      .expect(201)
-
-    const specificTransaction = await request(app.server)
+    const listTransactionsResponse = await request(app.server)
       .get('/transactions')
       .set('Cookie', cookies)
-      .expect(200)
 
-    const transactionId = specificTransaction.body[1].id
+    const transactionId = listTransactionsResponse.body[0].id
 
-    const response = await request(app.server)
-      .get('/transactions/' + transactionId)
+    const getTransactionResponse = await request(app.server)
+      .get(`/transactions/${transactionId}`)
       .set('Cookie', cookies)
-      .expect(200)
 
-    expect(response.body.transactions.id).toEqual(transactionId)
+    expect(getTransactionResponse.statusCode).toEqual(200)
+    expect(getTransactionResponse.body).toEqual(
+      expect.objectContaining({
+        title: 'New transaction',
+        amount: 5000,
+      }),
+    )
   })
 
-  it('should be abble to get a summary', async () => {
+  it('should be able to get the summary', async () => {
     const createTransactionResponse = await request(app.server)
       .post('/transactions')
       .send({
-        title: 'credit transaction',
+        title: 'Credit transaction',
         amount: 5000,
         type: 'credit',
       })
-      .expect(201)
 
     const cookies = createTransactionResponse.get('Set-Cookie')
 
@@ -107,21 +97,24 @@ describe('Transactions routes', () => {
       .post('/transactions')
       .set('Cookie', cookies)
       .send({
-        title: 'debit transaction',
+        title: 'Debit transaction',
         amount: 2000,
         type: 'debit',
       })
-      .expect(201)
 
     const summaryResponse = await request(app.server)
       .get('/transactions/summary')
       .set('Cookie', cookies)
-      .expect(200)
 
-    expect(summaryResponse.body.summary).toEqual(
-      expect.objectContaining({
-        amount: 3000,
-      }),
-    )
+    expect(summaryResponse.statusCode).toEqual(200)
+    expect(summaryResponse.body).toEqual({
+      amount: 3000,
+    })
+  })
+
+  it('should not be able to list transactions without session cookie', async () => {
+    const response = await request(app.server).get('/transactions')
+
+    expect(response.statusCode).toEqual(401)
   })
 })

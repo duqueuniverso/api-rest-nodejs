@@ -1,12 +1,12 @@
 import { FastifyInstance } from 'fastify'
-import { knex } from '../database'
 import { randomUUID } from 'crypto'
 import { z } from 'zod'
 import { hasValidSessionCookie } from '../middleware/check-session-id-exists'
 import { env } from '../env'
 
 export async function transactionsRoutes(app: FastifyInstance) {
-  // Adicione antes das definições de rota
+  const repository = app.repository
+
   app.addHook('preHandler', (request, reply, done) => {
     const allowedMethods = ['POST', 'PUT']
 
@@ -22,42 +22,35 @@ export async function transactionsRoutes(app: FastifyInstance) {
     done()
   })
 
+  // LIST ALL
   app.get('/', { preHandler: [hasValidSessionCookie] }, async (request) => {
     const { sessionId } = request.cookies
-
-    const transactions = await knex('transactions')
-      .where('session_id', sessionId)
-      .select('*')
-    return transactions
+    return repository.findBySession(sessionId!)
   })
 
+  // GET BY ID
   app.get('/:id', { preHandler: [hasValidSessionCookie] }, async (request) => {
     const getTransacionsParamsSchema = z.object({
       id: z.string().uuid(),
     })
     const { sessionId } = request.cookies
     const { id } = getTransacionsParamsSchema.parse(request.params)
-    const transactions = await knex('transactions')
-      .where('id', id)
-      .andWhere('session_id', sessionId)
-      .first()
-    return { transactions }
+    const transactions = await repository.findByID(id, sessionId!)
+    return transactions
   })
 
+  // GET SUMMARY
   app.get(
     '/summary',
     { preHandler: [hasValidSessionCookie] },
     async (request) => {
       const { sessionId } = request.cookies
-      const summary = await knex('transactions')
-        .sum('amount', { as: 'amount' })
-        .where('session_id', sessionId)
-        .first()
-
-      return { summary }
+      const amount = await repository.getSummary(sessionId!)
+      return { amount }
     },
   )
 
+  // POST
   app.post('/', async (request, reply) => {
     const createTransactionBodySchema = z.object({
       title: z.string(),
@@ -82,8 +75,7 @@ export async function transactionsRoutes(app: FastifyInstance) {
       })
     }
 
-    await knex('transactions').insert({
-      id: randomUUID(),
+    await repository.create({
       title,
       amount: type === 'credit' ? amount : amount * -1,
       session_id: sessionId,

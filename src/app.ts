@@ -25,32 +25,32 @@ app.register(helmet, {
   frameguard: { action: "deny" },
 });
 
-app.register(fastifySwagger, {
-  openapi: {
-    info: {
-      title: "Transactions API",
-      description: "API para gerenciamento de transações financeiras",
-      version: "1.0.0",
-    },
-    components: {
-      securitySchemes: {
-        sessionCookie: {
-          type: "apiKey",
-          name: "sessionId",
-          in: "cookie",
-        },
-      },
-    },
-  },
-});
+// app.register(fastifySwagger, {
+//   openapi: {
+//     info: {
+//       title: "Transactions API",
+//       description: "API para gerenciamento de transações financeiras",
+//       version: "1.0.0",
+//     },
+//     components: {
+//       securitySchemes: {
+//         sessionCookie: {
+//           type: "apiKey",
+//           name: "sessionId",
+//           in: "cookie",
+//         },
+//       },
+//     },
+//   },
+// });
 
-app.register(fastifySwaggerUi, {
-  routePrefix: "/docs",
-  uiConfig: {
-    docExpansion: "full",
-    deepLinking: false,
-  },
-});
+// app.register(fastifySwaggerUi, {
+//   routePrefix: "/docs",
+//   uiConfig: {
+//     docExpansion: "full",
+//     deepLinking: false,
+//   },
+// });
 
 app.register(rateLimit, {
   global: true,
@@ -65,27 +65,31 @@ app.register(rateLimit, {
 
 app.decorate("repository", new KnexTransactionRepository(knex));
 
+// app.register(transactionsRoutes, {
+//   prefix: "transactions",
+//   schema: {
+//     description: "Lista todas as transações do usuário",
+//     tags: ["transactions"],
+//     security: [{ sessionCookie: [] }],
+//     response: {
+//       200: {
+//         type: "array",
+//         items: {
+//           type: "object",
+//           properties: {
+//             id: { type: "string", format: "uuid" },
+//             title: { type: "string" },
+//             amount: { type: "number" },
+//             type: { type: "string", enum: ["credit", "debit"] },
+//           },
+//         },
+//       },
+//     },
+//   },
+// });
+
 app.register(transactionsRoutes, {
   prefix: "transactions",
-  schema: {
-    description: "Lista todas as transações do usuário",
-    tags: ["transactions"],
-    security: [{ sessionCookie: [] }],
-    response: {
-      200: {
-        type: "array",
-        items: {
-          type: "object",
-          properties: {
-            id: { type: "string", format: "uuid" },
-            title: { type: "string" },
-            amount: { type: "number" },
-            type: { type: "string", enum: ["credit", "debit"] },
-          },
-        },
-      },
-    },
-  },
 });
 
 app.register(healthCheckRoutes);

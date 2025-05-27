@@ -11,4 +11,5 @@ export interface TransactionRepository {
   findBySession(sessionId: string): Promise<Transaction[]>
   findByID(id: string, sessionId: string): Promise<Transaction>
   getSummary(sessionId: string): Promise<number>
+  healthChech(): Promise<string>
 }

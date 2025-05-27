@@ -37,4 +37,11 @@ export class KnexTransactionRepository implements TransactionRepository {
       .andWhere('session_id', sessionId)
       .first()
   }
+
+  async healthChech(): Promise<string> {
+    return await this.knex
+      .raw('SELECT 1')
+      .then(() => 'healthy')
+      .catch(() => 'down')
+  }
 }

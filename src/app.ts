@@ -15,6 +15,11 @@ import { AppError } from "./errors/app-error";
 
 export const app = fastify();
 
+app.listen({
+  port: 3333,
+  host: '0.0.0.0'  
+})
+
 app.register(cookie, {
   secret: "your-secret", // se for usar cookies assinados
 });

@@ -1,40 +1,46 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.5.3/schema.json",
-  "organizeImports": {
-    "enabled": true
-  },
-  "files": {
-    "ignore": ["**/node_modules", "**/dist", "**/build"]
-  },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": false,
-      "correctness": {
-        "noUnusedVariables": "error"
-      }
-    }
-  },
-  "formatter": {
-    "enabled": true,
-    "indentStyle": "space",
-    "indentWidth": 2
-  },
-  "javascript": {
-    "parser": {
-      "unsafeParameterDecoratorsEnabled": false
-    }
-  },
-  "overrides": [
-    {
-      "include": ["**/*.test.ts"],
-      "linter": {
+    "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+    "linter": {
+        "enabled": true,
         "rules": {
-          "style": {
-            "useBlockStatements": "off"
-          }
+            "recommended": true,
+            "suspicious": {
+                "noRedundantUseStrict": "error",
+                "noAssignInExpressions": "error",
+                "noExplicitAny": "error"
+            },
+            "style": {
+                "noVar": "error",
+                "useConst": "error",
+                "noParameterAssign": "error",
+                "useBlockStatements": "error",
+                "noImplicitBoolean": "error",
+                "useFragmentSyntax": "error"
+            },
+            "a11y": {
+                "useAltText": "error",
+                "useAnchorContent": "error",
+                "useAriaPropsForRole": "error",
+                "useValidAriaProps": "error",
+                "useKeyWithClickEvents": "error",
+                "useValidLang": "warn"
+            }
         }
-      }
+    },
+    "formatter": {
+        "enabled": true,
+        "indentStyle": "space",
+        "indentWidth": 4,
+        "lineWidth": 100
+    },
+    "javascript": {
+        "formatter": {
+            "quoteStyle": "double",
+            "semicolons": "always"
+        },
+        "globals": ["node"]
+    },
+    "files": {
+        "ignore": ["./build", "./dist", "./node_modules"]
     }
-  ]
 }

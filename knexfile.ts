@@ -2,21 +2,21 @@
 
 // export default config
 
-import type { Knex } from 'knex'
-import { env } from './src/env'
+import type { Knex } from "knex";
+import { env } from "./src/env";
 
 const config: Knex.Config = {
-  client: 'pg',
-  connection: {
-    connectionString: env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false
-    }
-  },
-  migrations: {
-    extension: 'ts',
-    directory: './db/migrations'
-  }
-}
+    client: "pg",
+    connection: {
+        connectionString: env.DATABASE_URL,
+        ssl: {
+            rejectUnauthorized: false,
+        },
+    },
+    migrations: {
+        extension: "ts",
+        directory: "./db/migrations",
+    },
+};
 
-export default config
+export default config;

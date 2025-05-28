@@ -47,9 +47,6 @@ export class KnexTransactionRepository implements TransactionRepository {
     // Set cache with TTL of 60s
     await redis.set(cacheKey, summary.toString(), { EX: 60 });
 
-    // Close Connection
-    await redis.close();
-
     return summary;
   }
 

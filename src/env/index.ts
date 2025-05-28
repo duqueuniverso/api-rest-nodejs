@@ -1,23 +1,34 @@
 import { config } from "dotenv";
 import { z } from "zod";
 
-if (process.env.NODE_ENV === "test") {
-  config({ path: ".env.test" });
-} else config();
+// Load appropriate .env file
+const envFile = process.env.NODE_ENV === "test" ? ".env.test" : ".env";
+config({ path: envFile });
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("production"),
   DATABASE_CLIENT: z.enum(["sqlite", "pg"]),
   DATABASE_URL: z.string(),
-  REDIS_URL: z.string(),
-  PORT: z.coerce.number().default(3333) || 3333,
+  REDIS_URL: z.string().optional(), // Made optional for flexibility
+  PORT: z.coerce.number().default(3333),
+  COOKIE_SECRET: z.string().min(32).default("default-insecure-secret-please-change"),
+  RATE_LIMIT_MAX: z.coerce.number().default(10),
 });
 
-export const _env = envSchema.safeParse(process.env);
+const _env = envSchema.safeParse({
+  ...process.env,
+  // For Render.com PostgreSQL
+  DATABASE_URL: process.env.DATABASE_URL || process.env.POSTGRES_EXTERNAL_URL,
+  // For Render.com Redis
+  REDIS_URL: process.env.REDIS_URL || process.env.REDIS_EXTERNAL_URL,
+});
 
-if (_env.success === false) {
-  console.error("Invalid enviroment variables", _env.error.format());
-  throw new Error("Invalid enviroment variables");
+if (!_env.success) {
+  console.error("❌ Invalid environment variables:", _env.error.format());
+  throw new Error("Invalid environment variables");
 }
 
 export const env = _env.data;
+
+// Log loaded environment (except sensitive data)
+console.log(`✅ Environment loaded (NODE_ENV=${env.NODE_ENV})`);

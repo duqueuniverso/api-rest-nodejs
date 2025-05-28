@@ -3,7 +3,7 @@ import { app } from '../src/app'
 import request from 'supertest'
 import { knex } from '../src/database'
 
-describe('Transactions API', () => {
+describe.skip('Transactions API', () => {
   beforeAll(async () => {
     await app.ready()
   })

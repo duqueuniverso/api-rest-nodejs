@@ -14,9 +14,6 @@ pre-commit:
     test:
       run: npm test
       only: "**/*.{ts,tsx}"
-      skip:
-        - "**/*.spec.ts"
-        - "**/*.test.ts"  
     concurrency: 4 # Limita a 4 processos paralelos
     
 exclude:

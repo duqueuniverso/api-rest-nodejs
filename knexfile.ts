@@ -9,7 +9,9 @@ const config: Knex.Config = {
   client: 'pg',
   connection: {
     connectionString: env.DATABASE_URL,
-    ssl: true
+    ssl: {
+      rejectUnauthorized: false
+    }
   },
   migrations: {
     extension: 'ts',

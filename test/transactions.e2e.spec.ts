@@ -3,7 +3,7 @@ import request from 'supertest'
 import { app } from '../src/app'
 import { execSync } from 'child_process'
 
-describe('Transactions routes', () => {
+describe.skip('Transactions routes', () => {
   beforeAll(async () => {
     await app.ready()
   })

@@ -43,7 +43,7 @@
     },
     "dependencies": {
         "@biomejs/biome": "^1.9.4",
-        "@duqueuniverso/biome-config": "^1.2.0",
+        "@duqueuniverso/biome-config": "^1.3.2",
         "@fastify/cookie": "^11.0.2",
         "@fastify/helmet": "^13.0.1",
         "@fastify/rate-limit": "^10.3.0",

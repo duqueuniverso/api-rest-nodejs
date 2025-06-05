@@ -1,46 +1,4 @@
 {
     "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
-    "linter": {
-        "enabled": true,
-        "rules": {
-            "recommended": true,
-            "suspicious": {
-                "noRedundantUseStrict": "error",
-                "noAssignInExpressions": "error",
-                "noExplicitAny": "error"
-            },
-            "style": {
-                "noVar": "error",
-                "useConst": "error",
-                "noParameterAssign": "error",
-                "useBlockStatements": "error",
-                "noImplicitBoolean": "error",
-                "useFragmentSyntax": "error"
-            },
-            "a11y": {
-                "useAltText": "error",
-                "useAnchorContent": "error",
-                "useAriaPropsForRole": "error",
-                "useValidAriaProps": "error",
-                "useKeyWithClickEvents": "error",
-                "useValidLang": "warn"
-            }
-        }
-    },
-    "formatter": {
-        "enabled": true,
-        "indentStyle": "space",
-        "indentWidth": 4,
-        "lineWidth": 100
-    },
-    "javascript": {
-        "formatter": {
-            "quoteStyle": "double",
-            "semicolons": "always"
-        },
-        "globals": ["node"]
-    },
-    "files": {
-        "ignore": ["./build", "./dist", "./node_modules"]
-    }
+    "extends": ["@duqueuniverso/biome-config/node"]
 }
